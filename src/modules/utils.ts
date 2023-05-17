@@ -54,7 +54,7 @@ export const filterDataFromList = (
   return filteredList;
 };
 
-export const filterDateByDateRange = (
+export const filterDataByDateRange = (
   listToFilter: any[],
   startDate: Date,
   endDate: Date

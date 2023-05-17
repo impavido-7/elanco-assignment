@@ -7,14 +7,14 @@
 /* styling of whole input container */
 .form {
   --timing: 0.3s;
-  --height-of-input: 40px;
-  --border-height: 2px;
+  --height-of-input: 33px;
+  --border-height: 1px;
   --input-bg: #fff;
   --border-color: #2f2ee9;
   --border-radius: 30px;
   --after-border-radius: 1px;
   position: relative;
-  width: 100%;
+  width: calc(100% - 1.6em);
   height: var(--height-of-input);
   display: flex;
   align-items: center;
@@ -25,7 +25,7 @@
 }
 
 .form__add__border {
-  border-bottom: 2px solid hsl(0, 0%, 80%);
+  border: 1px solid hsl(0, 0%, 80%);
   border-radius: 0;
 }
 

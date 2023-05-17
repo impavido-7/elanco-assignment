@@ -21,3 +21,5 @@ export const OPTIONS_FOR_DROPDOWN = [
     label: "Lowest Cost First",
   },
 ] as OptionProps[];
+
+export const DATE_RANGE_SELECTOR_KEY = "selection";

@@ -3,25 +3,38 @@ import Select, { SingleValue } from "react-select";
 
 import Loader from "../common/Loader";
 import Grid from "../Grid";
-import SideFiltersPanel from "../SidePanel";
+import SideFiltersPanel from "../MainFilterPanel";
 import DateRangePicker from "../DateRangePicker";
 import TextInput from "../common/TextInput";
 
-import { OPTIONS_FOR_DROPDOWN, OptionProps } from "./constants";
-import { OPTIONS, values } from "../SidePanel/SidePanel";
+import {
+  DATE_RANGE_SELECTOR_KEY,
+  OPTIONS_FOR_DROPDOWN,
+  OptionProps,
+} from "./constants";
+import { OPTIONS } from "../MainFilterPanel/constants";
 import { axiosInstance } from "../../AxiosInstance";
 import { API_END_POINTS } from "../../modules/constants";
+import { filterDataFromList, filterDataByDateRange } from "../../modules/utils";
+
+import { values } from "../MainFilterPanel/types";
 import { responseType } from "../Grid/types";
 import { GridReadyEvent } from "ag-grid-community";
-import { filterDataFromList, filterDateByDateRange } from "../../modules/utils";
+import { Range, RangeKeyDict } from "react-date-range";
 
 import styles from "./pagecontainer.module.css";
-import { Range } from "react-date-range";
 
 export const PageContainer = () => {
   const [loading, setLoading] = useState(true);
   const [filteredRowData, setFilteredRowData] = useState<responseType[]>([]);
   const [sortBy, setSortBy] = useState<OptionProps>({} as OptionProps);
+  const [range, setRange] = useState<Range[]>([
+    { key: DATE_RANGE_SELECTOR_KEY },
+  ]);
+  const [searchText, setSearchText] = useState("");
+  const [selectedMainFilter, setSelectedMainFilter] = useState<OptionProps>(
+    {} as OptionProps
+  );
 
   const rowData = useRef<responseType[]>([]);
   const completeData = useRef<responseType[]>([]);
@@ -57,27 +70,60 @@ export const PageContainer = () => {
     []
   );
 
+  // To reset all the subFilters
+  const resetSubFilters = useCallback(() => {
+    setSearchText("");
+    setRange([{ key: DATE_RANGE_SELECTOR_KEY }]);
+    setSearchText("");
+  }, []);
+
+  // Apply sub-filters
+  const applyFilters = useCallback(
+    ({ text = searchText, dateRange = range }) => {
+      let filteredData = [...rowData.current];
+      if (text.trim().length) {
+        filteredData = filterDataFromList(text.trim(), filteredData);
+      }
+      if (
+        dateRange.length === 1 &&
+        dateRange[0].startDate &&
+        dateRange[0].endDate
+      ) {
+        filteredData = filterDataByDateRange(
+          filteredData,
+          new Date(dateRange[0].startDate!),
+          new Date(dateRange[0].endDate!)
+        );
+      }
+      setFilteredRowData([...filteredData]);
+    },
+    [range, searchText]
+  );
+
+  // This will clear the sortBy value
   const clearSort = useCallback(() => {
     gridRef.current?.columnApi.applyColumnState({
       defaultState: { sort: null },
     });
   }, []);
 
-  const onDateRangeUpdate = useCallback((dateRange: Range[]) => {
-    if (dateRange.length === 0) {
-      setFilteredRowData([...rowData.current]);
-      return;
-    }
-    const tempFilteredData = filterDateByDateRange(
-      rowData.current,
-      new Date(dateRange[0].startDate!),
-      new Date(dateRange[0].endDate!)
-    );
-    setFilteredRowData([...tempFilteredData]);
+  // Triggered when we select date range
+  const onDateRangeChange = useCallback((dateRange: RangeKeyDict) => {
+    setRange([dateRange[DATE_RANGE_SELECTOR_KEY]]);
   }, []);
 
+  // Trigerred when we set both the start & the end dates in the date picker
+  const onDateRangeSet = useCallback(
+    (dateRange: Range[]) => {
+      applyFilters({ dateRange });
+    },
+    [applyFilters]
+  );
+
+  // Triggered when we apply the main filters -> Resource, Meter
   const onResourceSelect = useCallback(
     (selectedResource: string, selectedCategory: values) => {
+      resetSubFilters();
       if (!selectedResource) {
         setFilteredRowData([...completeData.current]);
         return;
@@ -93,6 +139,17 @@ export const PageContainer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
+
+  // This will clear all the applied filters
+  const clearAllFilters = useCallback(() => {
+    setSelectedMainFilter({} as OptionProps);
+    resetSubFilters();
+    // Setting the complete raw response as we cleared all the filters
+    setFilteredRowData([...completeData.current]);
+
+    // Setting this value, for filtering
+    rowData.current = completeData.current;
+  }, [resetSubFilters]);
 
   const applySelectedSortBy = useCallback((valueSelected: string) => {
     switch (valueSelected) {
@@ -135,35 +192,51 @@ export const PageContainer = () => {
 
   return (
     <div className={styles.parent__container}>
-      <div className={`${styles.container} ${styles.alignItems}`}>
-        <div className={styles.search__container}>
+      <fieldset className={styles.fieldset}>
+        <legend> Main Filters </legend>
+        <div className={`${styles.container} ${styles.alignItems}`}>
+          <SideFiltersPanel
+            selectedOption={selectedMainFilter}
+            onChange={setSelectedMainFilter}
+            onResourceSelect={onResourceSelect}
+          />
+        </div>
+      </fieldset>
+
+      <fieldset className={styles.fieldset}>
+        <legend> Sub Filters </legend>
+        <div className={`${styles.container} ${styles.alignItems}`}>
           <div className={styles.input__sub__container}>
             <TextInput
+              value={searchText}
+              onChange={setSearchText}
               placeholder="Search"
-              onPressEnter={(searchText) => {
-                if (!searchText!.trim()) {
-                  setFilteredRowData([...rowData.current]);
-                } else {
-                  const fiteredList = filterDataFromList(
-                    searchText!.trim(),
-                    rowData.current
-                  );
-                  setFilteredRowData([...fiteredList]);
-                }
+              onPressEnter={(text) => {
+                applyFilters({ text });
               }}
             />
           </div>
+          <DateRangePicker
+            range={range}
+            dateSelectionKey={DATE_RANGE_SELECTOR_KEY}
+            onDateRangeChange={onDateRangeChange}
+            onDateRangeSet={onDateRangeSet}
+          />
+          <Select
+            placeholder="Sort by"
+            value={sortBy.value ? sortBy : null}
+            isClearable
+            options={OPTIONS_FOR_DROPDOWN}
+            onChange={onSelectSortBy}
+            className={styles.select}
+          />
         </div>
-        <DateRangePicker onDateRangeUpdate={onDateRangeUpdate} />
-        <SideFiltersPanel onResourceSelect={onResourceSelect} />
-        <Select
-          placeholder="Sort by"
-          value={sortBy.value ? sortBy : null}
-          isClearable
-          options={OPTIONS_FOR_DROPDOWN}
-          onChange={onSelectSortBy}
-          className={styles.select}
-        />
+      </fieldset>
+
+      <div>
+        <button onClick={clearAllFilters} className={styles.button}>
+          X Clear All Filters
+        </button>
       </div>
 
       <div className={styles.container}>

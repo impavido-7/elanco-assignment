@@ -16,13 +16,13 @@
 }
 
 .input__sub__container {
-  width: calc(100% - 10px - 0.8em);
+  width: 250px;
 }
 
 .alignItems {
   align-items: center;
   gap: 10px;
-  margin-bottom: 15px;
+  margin: 15px 0;
 }
 
 .sidepanel__container {
@@ -30,9 +30,9 @@
   padding-right: 5px;
 }
 
-.search__container {
+/* .search__container {
   flex-grow: 1;
-}
+} */
 
 .select {
   width: 200px;
@@ -41,4 +41,23 @@
 .child__container {
   width: 100%;
   height: calc(100vh - 100px)
+}
+
+.fieldset {
+  border-radius: 10px;
+  border-width: 2px;
+  border-color: hsl(0, 0%, 80%);
+  margin-bottom: 15px;
+}
+
+.button {
+  margin-bottom: 15px;
+  background-color: transparent;
+  padding: 10px 15px;
+  border-color: red;
+  color: red;
+  border-radius: 10px;
+  display: block;
+  margin-left: auto;
+  cursor: pointer;
 }
