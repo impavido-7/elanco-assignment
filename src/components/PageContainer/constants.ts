@@ -1,8 +1,9 @@
+export type OptionProps = {
+  value: string;
+  label: string;
+};
+
 export const OPTIONS_FOR_DROPDOWN = [
-  {
-    value: "null",
-    label: "Clear Sort",
-  },
   {
     value: "mostRecent",
     label: "Recent Transactions First",
@@ -19,4 +20,4 @@ export const OPTIONS_FOR_DROPDOWN = [
     value: "lowestCostFirst",
     label: "Lowest Cost First",
   },
-];
+] as OptionProps[];

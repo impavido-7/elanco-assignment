@@ -14,10 +14,7 @@ type TablePropTypes = {
 
 export const Grid = ({ rowData, onGridReady }: TablePropTypes) => {
   return (
-    <div
-      className="ag-theme-balham"
-      style={{ width: "100%", height: "calc(100vh - 100px)" }}
-    >
+    <div className="ag-theme-balham" style={{ width: "100%", height: "100%" }}>
       <AgGridReact
         onGridReady={onGridReady}
         defaultColDef={defaultColDefs}

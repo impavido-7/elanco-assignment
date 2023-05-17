@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import Select, { SingleValue } from "react-select";
 
 import Loader from "../common/Loader";
 import Grid from "../Grid";
-import Select from "../common/Select";
 import SideFiltersPanel from "../SidePanel";
 import DateRangePicker from "../DateRangePicker";
 import TextInput from "../common/TextInput";
 
-import { OPTIONS_FOR_DROPDOWN } from "./constants";
+import { OPTIONS_FOR_DROPDOWN, OptionProps } from "./constants";
 import { OPTIONS, values } from "../SidePanel/SidePanel";
 import { axiosInstance } from "../../AxiosInstance";
 import { API_END_POINTS } from "../../modules/constants";
@@ -21,7 +21,7 @@ import { Range } from "react-date-range";
 export const PageContainer = () => {
   const [loading, setLoading] = useState(true);
   const [filteredRowData, setFilteredRowData] = useState<responseType[]>([]);
-  const [sortBy, setSortBy] = useState("null");
+  const [sortBy, setSortBy] = useState<OptionProps>({} as OptionProps);
 
   const rowData = useRef<responseType[]>([]);
   const completeData = useRef<responseType[]>([]);
@@ -94,58 +94,80 @@ export const PageContainer = () => {
     []
   );
 
+  const applySelectedSortBy = useCallback((valueSelected: string) => {
+    switch (valueSelected) {
+      case "highestCostFirst":
+        sort("Cost", "desc");
+        break;
+      case "lowestCostFirst":
+        sort("Cost", "asc");
+        break;
+      case "mostRecent":
+        sort("Date", "desc");
+        break;
+      case "lessRecent":
+        sort("Date", "asc");
+        break;
+      default:
+        console.log("No case selected");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onSelectSortBy = useCallback(
+    (selectedValue: SingleValue<OptionProps>) => {
+      if (!selectedValue) {
+        clearSort();
+        setSortBy({} as OptionProps);
+      } else {
+        applySelectedSortBy(selectedValue.value);
+        setSortBy({ ...selectedValue });
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
   useEffect(() => {
     getData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (sortBy === "null") {
-      clearSort();
-    } else if (sortBy === "highestCostFirst") {
-      sort("Cost", "desc");
-    } else if (sortBy === "lowestCostFirst") {
-      sort("Cost", "asc");
-    } else if (sortBy === "mostRecent") {
-      sort("Date", "desc");
-    } else if (sortBy === "lessRecent") {
-      sort("Date", "asc");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortBy]);
-
   return (
     <div className={styles.parent__container}>
       <div className={`${styles.container} ${styles.alignItems}`}>
-        <div className={styles.flex__grow} />
-        <TextInput
-          placeholder="Search"
-          onPressEnter={(searchText) => {
-            if (!searchText!.trim()) {
-              setFilteredRowData([...rowData.current]);
-            } else {
-              const fiteredList = filterDataFromList(
-                searchText!.trim(),
-                rowData.current
-              );
-              setFilteredRowData([...fiteredList]);
-            }
-          }}
-        />
+        <div className={styles.search__container}>
+          <div className={styles.input__sub__container}>
+            <TextInput
+              placeholder="Search"
+              onPressEnter={(searchText) => {
+                if (!searchText!.trim()) {
+                  setFilteredRowData([...rowData.current]);
+                } else {
+                  const fiteredList = filterDataFromList(
+                    searchText!.trim(),
+                    rowData.current
+                  );
+                  setFilteredRowData([...fiteredList]);
+                }
+              }}
+            />
+          </div>
+        </div>
         <DateRangePicker onDateRangeUpdate={onDateRangeUpdate} />
-        <h4> Sort By: </h4>
+        <SideFiltersPanel onResourceSelect={onResourceSelect} />
         <Select
-          value={sortBy}
-          onChange={setSortBy}
+          placeholder="Sort by"
+          value={sortBy.value ? sortBy : null}
+          isClearable
           options={OPTIONS_FOR_DROPDOWN}
+          onChange={onSelectSortBy}
+          className={styles.select}
         />
       </div>
 
       <div className={styles.container}>
-        <div className={styles.sidepanel__container}>
-          <SideFiltersPanel onResourceSelect={onResourceSelect} />
-        </div>
-        <div className={styles.flex__grow}>
+        <div className={styles.child__container}>
           {loading ? (
             <div className={styles.loader__container}>
               <Loader />

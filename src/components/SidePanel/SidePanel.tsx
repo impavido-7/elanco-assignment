@@ -93,10 +93,11 @@ export const SidePanel = ({ onResourceSelect }: SidePanelProps) => {
   }, []);
 
   return (
-    <div className={styles.select__container}>
+    <>
       <div className={styles.child__container}>
-        <h4> Resource Group </h4>
+        {/* <h4> Resource Group </h4> */}
         <Select
+          placeholder="Select Resource Group"
           value={
             selectedCategoryRef.current === OPTIONS.application
               ? selectedOption
@@ -109,8 +110,9 @@ export const SidePanel = ({ onResourceSelect }: SidePanelProps) => {
         />
       </div>
       <div className={styles.child__container}>
-        <h4> Meter Category </h4>
+        {/* <h4> Meter Category </h4> */}
         <Select
+          placeholder="Select Meter Category"
           value={
             selectedCategoryRef.current === OPTIONS.resource
               ? selectedOption
@@ -122,6 +124,6 @@ export const SidePanel = ({ onResourceSelect }: SidePanelProps) => {
           onChange={(e) => onSelect(e, OPTIONS.resource)}
         />
       </div>
-    </div>
+    </>
   );
 };

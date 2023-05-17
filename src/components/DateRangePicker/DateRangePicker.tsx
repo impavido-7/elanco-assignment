@@ -77,7 +77,7 @@ export const DateRangePicker = ({
       <div className={styles.input__container}>
         <input
           readOnly
-          placeholder="Date Range"
+          placeholder="Select Date Range"
           value={
             checkIfValueIsAvailable()
               ? `${format(range[0].startDate!, "dd MMM, yyyy")} - ${format(

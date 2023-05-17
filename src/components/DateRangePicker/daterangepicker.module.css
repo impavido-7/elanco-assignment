@@ -2,8 +2,9 @@
   font-size: 16px;
   padding: 5px 8px 4px 8px;
   border-radius: 3px;
-  border: 1px solid #666;
+  border: 1px solid hsl(0, 0%, 80%);
   width: 250px;
+  height: 25px;
 }
 
 .calendar__wrap {
@@ -30,6 +31,7 @@
   height: 20px;
   position: absolute;
   right: 5px;
-  top: 3.5px;
+  top: 8px;
   cursor: pointer;
+  color: hsl(0, 0%, 80%);
 }

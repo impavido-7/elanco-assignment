@@ -6,16 +6,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 100%;
+  width: 100%;
 }
 
 .container {
   display: flex;
+  flex-wrap: wrap;
+}
+
+.input__sub__container {
+  width: calc(100% - 10px - 0.8em);
 }
 
 .alignItems {
   align-items: center;
-  gap: 5px;
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
 .sidepanel__container {
@@ -23,6 +30,15 @@
   padding-right: 5px;
 }
 
-.flex__grow {
+.search__container {
   flex-grow: 1;
+}
+
+.select {
+  width: 200px;
+}
+
+.child__container {
+  width: 100%;
+  height: calc(100vh - 100px)
 }
