@@ -1,0 +1,28 @@
+.parent__container {
+  padding: 10px;
+}
+
+.loader__container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.container {
+  display: flex;
+}
+
+.alignItems {
+  align-items: center;
+  gap: 5px;
+}
+
+.sidepanel__container {
+  margin: 0 5px;
+  padding-right: 5px;
+}
+
+.flex__grow {
+  flex-grow: 1;
+}
